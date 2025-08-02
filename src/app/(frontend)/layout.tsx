@@ -3,8 +3,8 @@ import './styles.css'
 import './normalize.css'
 
 export const metadata = {
-  description: 'A blank template using Payload in a Next.js app.',
-  title: 'Payload Blank Template',
+  description: 'Novel Nest project with Payload CMS',
+  title: 'Novel Nest',
 }
 
 export default async function RootLayout(props: { children: React.ReactNode }) {
