@@ -8,13 +8,17 @@ type Props = {
   collection: keyof typeof collectionPrefixMap
   slug: string
   req: PayloadRequest
+  fullPath?: string // Optional full path for nested pages
 }
 
-export const generatePreviewPath = ({ collection, slug }: Props) => {
+export const generatePreviewPath = ({ collection, slug, fullPath }: Props) => {
+  // Use fullPath if provided, otherwise construct from slug
+  const path = fullPath || `${collectionPrefixMap[collection]}/${slug}`
+  
   const encodedParams = new URLSearchParams({
     slug,
     collection,
-    path: `${collectionPrefixMap[collection]}/${slug}`,
+    path,
     previewSecret: process.env.PREVIEW_SECRET || '',
   })
 

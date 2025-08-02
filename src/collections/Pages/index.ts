@@ -5,7 +5,7 @@ import { authenticatedOrPublished } from '../../access/authenticatedOrPublished'
 import { revalidateDelete, revalidatePage } from './hooks/revalidatePage'
 import { populatePublishedAt } from '@/hooks/populatePublishedAt'
 import { generatePreviewPath } from '@/utilities/generatePreviewPath'
-
+import { breadcrumbsField } from '@/fields/breadcrumbs'
 import {
   FixedToolbarFeature,
   InlineToolbarFeature,
@@ -30,21 +30,29 @@ export const Pages: CollectionConfig<'pages'> = {
     defaultColumns: ['title', 'slug', 'updatedAt'],
     livePreview: {
       url: ({ data, req }) => {
+        // Use breadcrumbUrl for nested pages, fall back to slug for home page
+        const fullPath = typeof data?.breadcrumbUrl === 'string' ? data.breadcrumbUrl : (data?.slug === 'home' ? '/' : `/${data?.slug || 'home'}`);
+
         const path = generatePreviewPath({
-          slug: typeof data?.slug === 'string' ? data.slug : '',
+          slug: typeof data?.slug === 'string' ? data.slug : 'home',
           collection: 'pages',
           req,
+          fullPath,
         })
 
         return path
       },
     },
-    preview: (data, { req }) =>
-      generatePreviewPath({
-        slug: typeof data?.slug === 'string' ? data.slug : '',
+    preview: (data, { req }) => {
+      // Use breadcrumbUrl for nested pages, fall back to slug for home page
+      const fullPath = typeof data?.breadcrumbUrl === 'string' ? data.breadcrumbUrl : (data?.slug === 'home' ? '/' : `/${data?.slug || 'home'}`);
+      return generatePreviewPath({
+        slug: typeof data?.slug === 'string' ? data.slug : 'home',
         collection: 'pages',
         req,
-      }),
+        fullPath,
+      })
+    },
     useAsTitle: 'title',
   },
   fields: [
@@ -98,6 +106,7 @@ export const Pages: CollectionConfig<'pages'> = {
       },
     },
     ...slugField(),
+    ...breadcrumbsField(),
   ],
   hooks: {
     afterChange: [revalidatePage],
