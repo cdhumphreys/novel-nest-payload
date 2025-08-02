@@ -1,19 +1,15 @@
 // storage-adapter-import-placeholder
 import { sqliteAdapter } from '@payloadcms/db-sqlite'
-import { payloadCloudPlugin } from '@payloadcms/payload-cloud'
 import { lexicalEditor } from '@payloadcms/richtext-lexical'
 import path from 'path'
 import { buildConfig } from 'payload'
 import { fileURLToPath } from 'url'
 import sharp from 'sharp'
 
-import { Users } from './collections/Users'
-import { Media } from './collections/Media'
-import { Books } from './collections/Books'
-import { Genres } from './collections/Genres'
-import { Authors } from './collections/Authors'
-import { Pages } from './collections/Pages'
+
+import { Users, Media, Books, Genres, Authors, Pages } from './collections'
 import { getServerSideURL } from './utilities/getURL'
+import { plugins } from './plugins'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -68,8 +64,5 @@ export default buildConfig({
   }),
   cors: [getServerSideURL()].filter(Boolean),
   sharp,
-  plugins: [
-    payloadCloudPlugin(),
-    // storage-adapter-placeholder
-  ],
+  plugins
 })

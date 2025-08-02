@@ -11,6 +11,7 @@ import {
   InlineToolbarFeature,
   lexicalEditor,
 } from '@payloadcms/richtext-lexical'
+import { createBreadcrumbsField, createParentField } from '@payloadcms/plugin-nested-docs'
 
 export const Pages: CollectionConfig<'pages'> = {
   slug: 'pages',
@@ -62,33 +63,41 @@ export const Pages: CollectionConfig<'pages'> = {
         },
       })
     },
-      // {
-      //   type: 'tabs',
-      //   tabs: [
-      //     {
-      //         label: 'Content',
-      //       fields: [
-      //         {
-      //           name: 'layout',
-      //           type: 'blocks',
-      //           blocks: [],
-      //           required: false,
-      //           admin: {
-      //             initCollapsed: true,
-      //           },
-      //         },
-      //       ],
-      //     },
-      //   ],
-      // },
+    createParentField(
+      // First argument is equal to the slug of the collection
+      // that the field references
+      'pages',
+
+      // Second argument is equal to field overrides that you specify,
+      // which will be merged into the base parent field config
       {
-        name: 'publishedAt',
-        type: 'date',
         admin: {
           position: 'sidebar',
         },
+        // Note: if you override the `filterOptions` of the `parent` field,
+        // be sure to continue to prevent the document from referencing itself as the parent like this:
+        // filterOptions: ({ id }) => ({ id: {not_equals: id }})
       },
-      ...slugField(),
+    ),
+    createBreadcrumbsField(
+      // First argument is equal to the slug of the collection
+      // that the field references
+      'pages',
+
+      // Argument equal to field overrides that you specify,
+      // which will be merged into the base `breadcrumbs` field config
+      {
+        label: 'Page Breadcrumbs',
+      },
+    ),
+    {
+      name: 'publishedAt',
+      type: 'date',
+      admin: {
+        position: 'sidebar',
+      },
+    },
+    ...slugField(),
   ],
   hooks: {
     afterChange: [revalidatePage],

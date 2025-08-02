@@ -5,7 +5,7 @@ import { draftMode } from "next/headers";
 import React, { cache } from 'react'
 import { LivePreviewListener } from '@/components/LivePreviewListener'
 import RichText from '@/components/RichText'
-
+import { PayloadRedirects } from '@/components/PayloadRedirects'
 
 
 export async function generateStaticParams() {
@@ -61,7 +61,7 @@ export default async function Page({ params: paramsPromise }: Args) {
       <RichText data={page?.content} />
       {/* <PageClient /> */}
       {/* Allows redirects for valid pages too */}
-      {/* <PayloadRedirects disableNotFound url={url} /> */}
+      <PayloadRedirects disableNotFound url={url} />
 
       {draft && <LivePreviewListener />}
 
