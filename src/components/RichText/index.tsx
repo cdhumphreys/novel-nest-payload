@@ -1,4 +1,3 @@
-
 import {
   DefaultNodeTypes,
   SerializedBlockNode,
@@ -11,18 +10,23 @@ import {
   RichText as ConvertRichText,
 } from '@payloadcms/richtext-lexical/react'
 
+type NodeTypes = DefaultNodeTypes
 
-
-type NodeTypes =
-  | DefaultNodeTypes
-
-const internalDocToHref = ({ linkNode }: { linkNode: SerializedLinkNode }) => {
+const internalDocToHref = ({ linkNode }: { linkNode: SerializedLinkNode }): string => {
+  // Value contains the default populated fields of the document
   const { value, relationTo } = linkNode.fields.doc!
   if (typeof value !== 'object') {
     throw new Error('Expected value to be an object')
   }
-  const slug = value.slug
-  return relationTo === 'posts' ? `/posts/${slug}` : `/${slug}`
+
+  if (relationTo === 'pages') {
+    // For pages, use the fullBreadcrumbUrl directly (it already includes the leading slash)
+    // or construct from slug if fullBreadcrumbUrl is not available
+    return (value.fullBreadcrumbUrl as string) || `/${value.slug}`
+  }
+
+  // For other collections, use slug-based URL
+  return `/${value.slug}`
 }
 
 const jsxConverters: JSXConvertersFunction<NodeTypes> = ({ defaultConverters }) => ({
@@ -51,11 +55,5 @@ type Props = {
 
 export default function RichText(props: Props) {
   const { className, ...rest } = props
-  return (
-    <ConvertRichText
-      converters={jsxConverters}
-      className={className}
-      {...rest}
-    />
-  )
+  return <ConvertRichText converters={jsxConverters} className={className} {...rest} />
 }

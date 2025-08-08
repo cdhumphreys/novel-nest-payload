@@ -1,12 +1,12 @@
-import { getPayload, RequiredDataFromCollectionSlug } from "payload";
-import config from "@payload-config";
-import { notFound } from "next/navigation";
-import { draftMode } from "next/headers";
+import { getPayload, RequiredDataFromCollectionSlug } from 'payload'
+import config from '@payload-config'
+import { notFound } from 'next/navigation'
+import { draftMode } from 'next/headers'
 import React, { cache } from 'react'
 import { LivePreviewListener } from '@/components/LivePreviewListener'
 import RichText from '@/components/RichText'
 import { PayloadRedirects } from '@/components/PayloadRedirects'
-
+import { RenderBlocks } from '@/blocks/RenderBlocks'
 
 export async function generateStaticParams() {
   const payload = await getPayload({ config })
@@ -18,31 +18,31 @@ export async function generateStaticParams() {
     pagination: false,
     select: {
       slug: true,
-      breadcrumbUrl: true,
+      fullBreadcrumbUrl: true,
     },
   })
 
   // Generate proper slug arrays for all pages including home
   const params = pages.docs
-    ?.map(({ slug, breadcrumbUrl }) => {
+    ?.map(({ slug, fullBreadcrumbUrl }) => {
       if (slug === 'home') {
         // Home page gets empty slug array
-        return { slug: [] };
+        return { slug: [] }
       }
-      
-      if (!breadcrumbUrl) return null;
-      
+
+      if (!fullBreadcrumbUrl) return null
+
       // Remove leading slash and split into slug array
-      const slugPath = breadcrumbUrl.startsWith('/') 
-        ? breadcrumbUrl.slice(1) 
-        : breadcrumbUrl;
-      
-      const slugArray = slugPath.split('/').filter(Boolean);
-      
-      return { slug: slugArray };
+      const slugPath = fullBreadcrumbUrl.startsWith('/')
+        ? fullBreadcrumbUrl.slice(1)
+        : fullBreadcrumbUrl
+
+      const slugArray = slugPath.split('/').filter(Boolean)
+
+      return { slug: slugArray }
     })
-    .filter(Boolean); // Remove null entries
-    
+    .filter(Boolean) // Remove null entries
+
   return params
 }
 
@@ -56,17 +56,16 @@ export default async function Page({ params: paramsPromise }: Args) {
   const { isEnabled: draft } = await draftMode()
 
   const params = await paramsPromise
-  const { slug = [] } = params;
-  
-  // Handle home page (empty slug array) vs other pages
-  const breadcrumbUrl = slug.length === 0 ? '/' : '/' + slug.join('/');
+  const { slug = [] } = params
 
+  // Handle home page (empty slug array) vs other pages
+  const breadcrumbUrl = slug.length === 0 ? '/home' : '/' + slug.join('/')
 
   let page: RequiredDataFromCollectionSlug<'pages'> | null
 
   // Query by breadcrumbUrl for exact matching
   page = await queryPageByBreadcrumbUrl({
-    breadcrumbUrl: breadcrumbUrl,
+    fullBreadcrumbUrl: breadcrumbUrl,
   })
 
   if (!page) {
@@ -74,24 +73,18 @@ export default async function Page({ params: paramsPromise }: Args) {
   }
 
   // Use the breadcrumbUrl for the URL
-  const url = breadcrumbUrl;
-  
+  const url = breadcrumbUrl
+
   return (
-    <article className="home">
-      <h1>Page</h1>
-      <p>{page?.title}</p>
-      <RichText data={page?.content} />
-      {/* <PageClient /> */}
+    <article className="page">
       {/* Allows redirects for valid pages too */}
-      {/* <PayloadRedirects disableNotFound url={url} /> */}
+      <PayloadRedirects disableNotFound url={url} />
 
       {draft && <LivePreviewListener />}
 
-
-      {/* <RenderBlocks blocks={layout} /> */}
+      <RenderBlocks blocks={page.blocks} />
     </article>
   )
-
 }
 
 // export async function generateMetadata({ params: paramsPromise }: Args): Promise<Metadata> {
@@ -102,8 +95,6 @@ export default async function Page({ params: paramsPromise }: Args) {
 
 //   return generateMeta({ doc: page })
 // }
-
-
 
 const queryPageBySlug = cache(async ({ slug }: { slug: string }) => {
   const { isEnabled: draft } = await draftMode()
@@ -125,37 +116,39 @@ const queryPageBySlug = cache(async ({ slug }: { slug: string }) => {
       title: true,
       slug: true,
       content: true,
-      breadcrumbUrl: true,
+      fullBreadcrumbUrl: true,
     },
   })
 
   return result.docs?.[0] || null
 })
 
-const queryPageByBreadcrumbUrl = cache(async ({ breadcrumbUrl }: { breadcrumbUrl: string }) => {
-  const { isEnabled: draft } = await draftMode()
+const queryPageByBreadcrumbUrl = cache(
+  async ({ fullBreadcrumbUrl }: { fullBreadcrumbUrl: string }) => {
+    const { isEnabled: draft } = await draftMode()
 
-  const payload = await getPayload({ config })
+    const payload = await getPayload({ config })
 
-
-  const result = await payload.find({
-    collection: 'pages',
-    draft,
-    limit: 1,
-    pagination: false,
-    overrideAccess: draft,
-    where: {
-      breadcrumbUrl: {
-        equals: breadcrumbUrl,
+    const result = await payload.find({
+      collection: 'pages',
+      draft,
+      limit: 1,
+      pagination: false,
+      overrideAccess: draft,
+      where: {
+        fullBreadcrumbUrl: {
+          equals: fullBreadcrumbUrl,
+        },
       },
-    },
-    select: {
-      title: true,
-      slug: true,
-      content: true,
-      breadcrumbUrl: true,
-    },
-  })
+      select: {
+        title: true,
+        slug: true,
+        content: true,
+        fullBreadcrumbUrl: true,
+        blocks: true,
+      },
+    })
 
-  return result.docs?.[0] || null
-})
+    return result.docs?.[0] || null
+  },
+)

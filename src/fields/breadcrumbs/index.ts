@@ -3,9 +3,8 @@ import type { TextField } from 'payload'
 import { formatBreadcrumbUrlHook } from './addBreadcrumbUrl'
 
 export const breadcrumbFullUrlField = () => {
-
   const breadcrumbUrlField: TextField = {
-    name: 'breadcrumbUrl',
+    name: 'fullBreadcrumbUrl',
     type: 'text',
     label: 'Breadcrumb URL',
     index: true,

@@ -245,7 +245,31 @@ export interface Genre {
 export interface Page {
   id: number;
   title: string;
-  content: {
+  parent?: (number | null) | Page;
+  breadcrumbs?:
+    | {
+        doc?: (number | null) | Page;
+        url?: string | null;
+        label?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  publishedAt?: string | null;
+  blocks: HomeBannerBlock[];
+  slug?: string | null;
+  slugLock?: boolean | null;
+  fullBreadcrumbUrl?: string | null;
+  updatedAt: string;
+  createdAt: string;
+  _status?: ('draft' | 'published') | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "HomeBannerBlock".
+ */
+export interface HomeBannerBlock {
+  title: string;
+  content?: {
     root: {
       type: string;
       children: {
@@ -259,23 +283,10 @@ export interface Page {
       version: number;
     };
     [k: string]: unknown;
-  };
-  parent?: (number | null) | Page;
-  breadcrumbs?:
-    | {
-        doc?: (number | null) | Page;
-        url?: string | null;
-        label?: string | null;
-        id?: string | null;
-      }[]
-    | null;
-  publishedAt?: string | null;
-  slug?: string | null;
-  slugLock?: boolean | null;
-  breadcrumbUrl?: string | null;
-  updatedAt: string;
-  createdAt: string;
-  _status?: ('draft' | 'published') | null;
+  } | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'homeBannerBlock';
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -550,7 +561,6 @@ export interface AuthorsSelect<T extends boolean = true> {
  */
 export interface PagesSelect<T extends boolean = true> {
   title?: T;
-  content?: T;
   parent?: T;
   breadcrumbs?:
     | T
@@ -561,12 +571,27 @@ export interface PagesSelect<T extends boolean = true> {
         id?: T;
       };
   publishedAt?: T;
+  blocks?:
+    | T
+    | {
+        homeBannerBlock?: T | HomeBannerBlockSelect<T>;
+      };
   slug?: T;
   slugLock?: T;
-  breadcrumbUrl?: T;
+  fullBreadcrumbUrl?: T;
   updatedAt?: T;
   createdAt?: T;
   _status?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "HomeBannerBlock_select".
+ */
+export interface HomeBannerBlockSelect<T extends boolean = true> {
+  title?: T;
+  content?: T;
+  id?: T;
+  blockName?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

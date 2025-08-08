@@ -6,12 +6,10 @@ import { revalidateDelete, revalidatePage } from './hooks/revalidatePage'
 import { populatePublishedAt } from '@/hooks/populatePublishedAt'
 import { generatePreviewPath } from '@/utilities/generatePreviewPath'
 import { breadcrumbFullUrlField } from '@/fields/breadcrumbs'
-import {
-  FixedToolbarFeature,
-  InlineToolbarFeature,
-  lexicalEditor,
-} from '@payloadcms/richtext-lexical'
+
 import { createBreadcrumbsField, createParentField } from '@payloadcms/plugin-nested-docs'
+
+import { HomeBannerBlock } from '@/blocks/HomeBannerBlock/config'
 
 export const Pages: CollectionConfig<'pages'> = {
   slug: 'pages',
@@ -21,17 +19,23 @@ export const Pages: CollectionConfig<'pages'> = {
     read: authenticatedOrPublished,
     update: authenticated,
   },
-  
+
   defaultPopulate: {
     title: true,
     slug: true,
+    fullBreadcrumbUrl: true,
   },
   admin: {
     defaultColumns: ['title', 'slug', 'updatedAt'],
     livePreview: {
       url: ({ data, req }) => {
         // Use breadcrumbUrl for nested pages, fall back to slug for home page
-        const fullPath = typeof data?.breadcrumbUrl === 'string' ? data.breadcrumbUrl : (data?.slug === 'home' ? '/' : `/${data?.slug || 'home'}`);
+        const fullPath =
+          typeof data?.breadcrumbUrl === 'string'
+            ? data.breadcrumbUrl
+            : data?.slug === 'home'
+              ? '/'
+              : `/${data?.slug || 'home'}`
 
         const path = generatePreviewPath({
           slug: typeof data?.slug === 'string' ? data.slug : 'home',
@@ -45,7 +49,12 @@ export const Pages: CollectionConfig<'pages'> = {
     },
     preview: (data, { req }) => {
       // Use breadcrumbUrl for nested pages, fall back to slug for home page
-      const fullPath = typeof data?.breadcrumbUrl === 'string' ? data.breadcrumbUrl : (data?.slug === 'home' ? '/' : `/${data?.slug || 'home'}`);
+      const fullPath =
+        typeof data?.breadcrumbUrl === 'string'
+          ? data.breadcrumbUrl
+          : data?.slug === 'home'
+            ? '/'
+            : `/${data?.slug || 'home'}`
       return generatePreviewPath({
         slug: typeof data?.slug === 'string' ? data.slug : 'home',
         collection: 'pages',
@@ -60,16 +69,6 @@ export const Pages: CollectionConfig<'pages'> = {
       name: 'title',
       type: 'text',
       required: true,
-    },
-    {
-      name: 'content',
-      type: 'richText',
-      required: true,
-      editor: lexicalEditor({
-        features: ({ rootFeatures }) => {
-          return [...rootFeatures, FixedToolbarFeature(), InlineToolbarFeature()]
-        },
-      })
     },
     createParentField(
       // First argument is equal to the slug of the collection
@@ -103,6 +102,15 @@ export const Pages: CollectionConfig<'pages'> = {
       type: 'date',
       admin: {
         position: 'sidebar',
+      },
+    },
+    {
+      name: 'blocks',
+      type: 'blocks',
+      blocks: [HomeBannerBlock],
+      required: true,
+      admin: {
+        initCollapsed: true,
       },
     },
     ...slugField(),
