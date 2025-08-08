@@ -43,7 +43,6 @@ export async function generateStaticParams() {
     })
     .filter(Boolean); // Remove null entries
     
-  console.log('params', params)
   return params
 }
 
@@ -57,14 +56,11 @@ export default async function Page({ params: paramsPromise }: Args) {
   const { isEnabled: draft } = await draftMode()
 
   const params = await paramsPromise
-  console.log('params awaited',params)
   const { slug = [] } = params;
   
   // Handle home page (empty slug array) vs other pages
   const breadcrumbUrl = slug.length === 0 ? '/' : '/' + slug.join('/');
-  
-  console.log('reconstructed breadcrumbUrl', breadcrumbUrl)
-  console.log('slug array length:', slug.length, 'slug array:', slug)
+
 
   let page: RequiredDataFromCollectionSlug<'pages'> | null
 
@@ -73,18 +69,13 @@ export default async function Page({ params: paramsPromise }: Args) {
     breadcrumbUrl: breadcrumbUrl,
   })
 
-  console.log('page',page)
-
   if (!page) {
-    console.log('not found')
     return notFound()
   }
 
   // Use the breadcrumbUrl for the URL
   const url = breadcrumbUrl;
   
-  console.log('url', url)
-
   return (
     <article className="home">
       <h1>Page</h1>
@@ -146,7 +137,6 @@ const queryPageByBreadcrumbUrl = cache(async ({ breadcrumbUrl }: { breadcrumbUrl
 
   const payload = await getPayload({ config })
 
-  console.log('queryPageByBreadcrumbUrl', breadcrumbUrl)
 
   const result = await payload.find({
     collection: 'pages',

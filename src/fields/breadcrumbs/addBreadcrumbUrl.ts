@@ -12,7 +12,7 @@ const formatBreadcrumbUrl = (breadcrumbs: Page['breadcrumbs']): string => {
   return lastBreadcrumb.url;
 }
 
-export const formatBreacrumbUrlHook =
+export const formatBreadcrumbUrlHook =
   (fallback: string): FieldHook =>
   ({ data, operation, value }) => {
     // console.log('data',data)

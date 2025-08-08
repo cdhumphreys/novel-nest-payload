@@ -1,8 +1,8 @@
 import type { TextField } from 'payload'
 
-import { formatBreacrumbUrlHook } from './addBreadcrumbUrl'
+import { formatBreadcrumbUrlHook } from './addBreadcrumbUrl'
 
-export const breadcrumbsField = () => {
+export const breadcrumbFullUrlField = () => {
 
   const breadcrumbUrlField: TextField = {
     name: 'breadcrumbUrl',
@@ -10,7 +10,7 @@ export const breadcrumbsField = () => {
     label: 'Breadcrumb URL',
     index: true,
     hooks: {
-      beforeChange: [formatBreacrumbUrlHook('breadcrumbs')],
+      beforeChange: [formatBreadcrumbUrlHook('breadcrumbs')],
     },
     admin: {
       position: 'sidebar',

@@ -5,7 +5,7 @@ import { authenticatedOrPublished } from '../../access/authenticatedOrPublished'
 import { revalidateDelete, revalidatePage } from './hooks/revalidatePage'
 import { populatePublishedAt } from '@/hooks/populatePublishedAt'
 import { generatePreviewPath } from '@/utilities/generatePreviewPath'
-import { breadcrumbsField } from '@/fields/breadcrumbs'
+import { breadcrumbFullUrlField } from '@/fields/breadcrumbs'
 import {
   FixedToolbarFeature,
   InlineToolbarFeature,
@@ -106,7 +106,7 @@ export const Pages: CollectionConfig<'pages'> = {
       },
     },
     ...slugField(),
-    ...breadcrumbsField(),
+    ...breadcrumbFullUrlField(),
   ],
   hooks: {
     afterChange: [revalidatePage],
